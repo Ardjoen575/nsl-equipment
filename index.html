@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NSL Equipment History Card - Professional Maintenance Tracking System">
+    <meta name="theme-color" content="#FF6B35">
+    <title>NSL Equipment History Card</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23FF6B35' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-weight='bold'>⚙</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --success: #06A77D;
+            --danger: #D62828;
+            --warning: #F77F00;
+            --light: #ECEFF1;
+            --dark: #263238;
+            --accent: #667eea;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            padding-bottom: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge-indicator {
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        /* Navigation */
+        .nav-top {
+            background: white;
+            padding: 0;
+            display: flex;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+        }
+
+        .nav-top button {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-top button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Main Content */
+        .content {
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Back Button */
+        .back-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .back-btn {
+            background: var(--light);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: var(--secondary);
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+            width: auto;
+            margin: 5px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Button Groups */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Search Bar */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .search-container .btn {
+            width: auto;
+            padding: 12px 20px;
+            margin-bottom: 0;
+        }
+
+        /* Video Feed */
+        #video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            background: #000;
+        }
+
+        /* Equipment List */
+        .equip-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .equip-card:active {
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .equip-card h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .equip-card p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        /* History Items */
+        .history-item {
+            background: var(--light);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .history-item:active {
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        .history-item h4 {
+            color: var(--secondary);
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .history-item p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .history-item strong {
+            color: var(--dark);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .badge-completed {
+            background: rgba(6, 168, 125, 0.2);
+            color: var(--success);
+        }
+
+        .badge-pending {
+            background: rgba(247, 127, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-approved {
+            background: rgba(6, 168, 125, 0.2);
+            color: var(--success);
+        }
+
+        .badge-rejected {
+            background: rgba(214, 40, 40, 0.2);
+            color: var(--danger);
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin-bottom: 5px;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(6, 168, 125, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: rgba(214, 40, 40, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-warning {
+            background: rgba(247, 127, 0, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Loading */
+        .spinner {
+            border: 4px solid var(--light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        /* Approval Queue */
+        .approval-item {
+            background: var(--light);
+            border: 2px solid var(--warning);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        .approval-item.new {
+            border-color: var(--warning);
+            background: rgba(247, 127, 0, 0.05);
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .approval-actions .btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 15px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <h1>⚙️ NSL Equipment History</h1>
+            <p>MRN Group - NSL Unit 2</p>
+        </div>
+        <div class="header-right">
+            <div class="badge-indicator" id="pendingBadge" style="display: none;">0</div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-top">
+        <button class="nav-btn active" onclick="showNavTab('home')">🏠 Home</button>
+        <button class="nav-btn" onclick="showNavTab('scan')">📷 Scan/Search</button>
+        <button class="nav-btn" onclick="showNavTab('history')">📜 History</button>
+        <button class="nav-btn" onclick="showNavTab('pending')">⏳ Pending <span id="badge" style="display:none;"></span></button>
+        <button class="nav-btn" onclick="showNavTab('admin')">🔐 Admin</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="content">
+            <!-- Alert -->
+            <div id="alert" class="alert"></div>
+
+            <!-- HOME SECTION -->
+            <div id="homeSection" class="section active">
+                <div class="info-card">
+                    <h3>🎯 Welcome</h3>
+                    <p>Professional Equipment Maintenance Tracking System</p>
+                </div>
+
+                <h2>Quick Actions</h2>
+                
+                <button class="btn btn-primary" onclick="switchTab('scan')">
+                    📷 Scan QR Code or Search
+                </button>
+
+                <button class="btn btn-secondary" onclick="switchTab('history')">
+                    📜 View Equipment History
+                </button>
+
+                <button class="btn btn-success" onclick="switchTab('addRecord')">
+                    ➕ Add Maintenance Record
+                </button>
+
+                <h3 style="margin-top: 25px;">📊 Quick Info</h3>
+                <div style="background: var(--light); padding: 15px; border-radius: 8px;">
+                    <p><strong>Total Equipment:</strong> <span id="homeEquipCount">0</span></p>
+                    <p><strong>Recent Records:</strong> <span id="homeRecordCount">0</span></p>
+                    <p><strong>Pending Approval:</strong> <span id="homePendingCount">0</span></p>
+                </div>
+
+                <button class="btn btn-outline" onclick="switchTab('admin')" style="margin-top: 20px;">
+                    🔐 Admin Panel
+                </button>
+            </div>
+
+            <!-- SCAN & SEARCH SECTION -->
+            <div id="scanSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('home')">← Back</button>
+                    <h2 style="margin: 0;">📷 Scan or Search</h2>
+                </div>
+
+                <h3>Option 1: Scan QR Code</h3>
+                <video id="video" width="100%" height="auto"></video>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="startScanBtn" onclick="startQRScan()">Start Camera</button>
+                    <button class="btn btn-secondary" id="stopScanBtn" onclick="stopQRScan()" style="display: none;">Stop Camera</button>
+                </div>
+
+                <input type="file" id="qrFile" accept="image/*" onchange="scanQRFromFile()" style="display: none;">
+                <button class="btn btn-outline" onclick="document.getElementById('qrFile').click()">
+                    🖼️ Upload QR Image
+                </button>
+
+                <h3>Option 2: Search Equipment</h3>
+                <div class="search-container">
+                    <input type="text" id="equipmentSearchId" placeholder="Equipment ID (e.g., EQUIP-001)" />
+                    <button class="btn btn-primary" onclick="searchEquipmentById()">🔍 Search</button>
+                </div>
+            </div>
+
+            <!-- HISTORY SECTION -->
+            <div id="historySection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('home')">← Back</button>
+                    <h2 style="margin: 0;">📜 Equipment History</h2>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="historySearch" placeholder="Search equipment..." onkeyup="filterEquipmentList()" />
+                    <button class="btn btn-primary" onclick="filterEquipmentList()">🔍 Find</button>
+                </div>
+
+                <div id="equipmentListContainer">
+                    <div class="empty-state">
+                        <p>Loading equipment list...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EQUIPMENT DETAIL SECTION -->
+            <div id="equipmentDetailSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('history')">← Back to List</button>
+                    <h2 id="equipDetailName" style="margin: 0;">Equipment</h2>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>ID:</strong> <span id="detailId">-</span></p>
+                    <p><strong>Power:</strong> <span id="detailPower">-</span></p>
+                    <p><strong>Serial:</strong> <span id="detailSerial">-</span></p>
+                    <p><strong>Last Service:</strong> <span id="detailLastService">-</span></p>
+                </div>
+
+                <h3>📋 Maintenance Records</h3>
+                <div id="equipmentHistoryList">
+                    <div class="empty-state">
+                        <p>No records found</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="switchTab('addRecord')">
+                    ➕ Add New Record
+                </button>
+            </div>
+
+            <!-- ADD RECORD SECTION -->
+            <div id="addRecordSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('home')">← Back</button>
+                    <h2 style="margin: 0;">➕ Add Maintenance Record</h2>
+                </div>
+
+                <div style="background: rgba(247, 127, 0, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 3px solid var(--warning);">
+                    <strong>📌 Note:</strong> Records need admin approval before saving to database.
+                </div>
+
+                <form id="recordForm" onsubmit="submitRecord(event)">
+                    <div class="form-group">
+                        <label>Equipment ID *</label>
+                        <input type="text" id="recordEquipId" placeholder="EQUIP-001" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Equipment Name *</label>
+                        <input type="text" id="recordEquipName" placeholder="Equipment name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service Date *</label>
+                        <input type="date" id="recordDate" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Task Performed *</label>
+                        <input type="text" id="recordTask" placeholder="What work was done?" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <select id="recordStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="Completed">✓ Completed</option>
+                            <option value="Pending">⏳ Pending</option>
+                            <option value="Failed">✕ Failed</option>
+                            <option value="Partial">◐ Partial</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technician Name *</label>
+                        <input type="text" id="recordTechnician" placeholder="Your name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hours Spent</label>
+                        <input type="number" id="recordHours" placeholder="0.5" step="0.5" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parts Used</label>
+                        <textarea id="recordParts" placeholder="List parts used..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="recordNotes" placeholder="Additional observations..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Next Service Due</label>
+                        <input type="date" id="recordNextService" />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        📤 Submit for Approval
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="switchTab('home')">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+
+            <!-- PENDING RECORDS SECTION -->
+            <div id="pendingSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('home')">← Back</button>
+                    <h2 style="margin: 0;">⏳ Pending Approval</h2>
+                </div>
+
+                <div id="pendingList">
+                    <div class="empty-state">
+                        <p>No pending records</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN PANEL SECTION -->
+            <div id="adminSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('home')">← Back</button>
+                    <h2 style="margin: 0;">🔐 Admin Panel</h2>
+                </div>
+
+                <div class="form-group">
+                    <label>Admin Password:</label>
+                    <input type="password" id="adminPassword" placeholder="Enter password" />
+                </div>
+
+                <button class="btn btn-primary" onclick="checkAdminPassword()">
+                    Unlock Admin Panel
+                </button>
+
+                <div id="adminContent" style="display: none; margin-top: 20px;">
+                    <h3>Admin Functions</h3>
+
+                    <button class="btn btn-secondary" onclick="loadAdminDashboard()">
+                        📊 View Dashboard
+                    </button>
+
+                    <button class="btn btn-warning" onclick="switchTab('approvalQueue')">
+                        ⏳ Approve Pending Records
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="switchTab('equipment')">
+                        ➕ Add Equipment
+                    </button>
+
+                    <button class="btn btn-danger" onclick="logoutAdmin()">
+                        🚪 Logout
+                    </button>
+
+                    <div id="adminDashboard" style="margin-top: 20px; display: none;">
+                        <h3>📊 Statistics</h3>
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px;">
+                            <p><strong>Total Equipment:</strong> <span id="adminEquipCount">0</span></p>
+                            <p><strong>Total Records:</strong> <span id="adminRecordCount">0</span></p>
+                            <p><strong>Pending Approval:</strong> <span id="adminPendingCount">0</span></p>
+                            <p><strong>Last Updated:</strong> <span id="adminLastUpdate">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPROVAL QUEUE SECTION -->
+            <div id="approvalQueueSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('admin')">← Back to Admin</button>
+                    <h2 style="margin: 0;">⏳ Review & Approve</h2>
+                </div>
+
+                <div id="approvalQueueList">
+                    <div class="empty-state">
+                        <p>No pending records to approve</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADD EQUIPMENT SECTION -->
+            <div id="equipmentSection" class="section">
+                <div class="back-header">
+                    <button class="back-btn" onclick="switchTab('admin')">← Back to Admin</button>
+                    <h2 style="margin: 0;">➕ Add Equipment</h2>
+                </div>
+
+                <form id="equipmentForm" onsubmit="saveEquipment(event)">
+                    <div class="form-group">
+                        <label>Equipment ID *</label>
+                        <input type="text" id="equipId" placeholder="EQUIP-001" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Equipment Name *</label>
+                        <input type="text" id="equipName" placeholder="Motor A, Pump B, etc." required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Power (KW)</label>
+                        <input type="number" id="equipKW" placeholder="15" step="0.1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Power (HP)</label>
+                        <input type="number" id="equipHP" placeholder="20" step="0.1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>RPM</label>
+                        <input type="number" id="equipRPM" placeholder="1500" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Frame Size</label>
+                        <input type="text" id="equipFrame" placeholder="180L" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>DE Bearing</label>
+                        <input type="text" id="equipDEBearing" placeholder="6309" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>NDE Bearing</label>
+                        <input type="text" id="equipNDEBearing" placeholder="6309" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Serial Number</label>
+                        <input type="text" id="equipSerial" placeholder="MFG-2024-001" />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        ✓ Create Equipment
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="switchTab('admin')">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>NSL Unit 2 - Equipment History Card v2.0 (ENHANCED)</p>
+        <p>📧 akshaybpatil575@gmail.com | 📞 +91 96116 31171</p>
+    </div>
+
+    <!-- jsQR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <!-- Main Application Script -->
+    <script>
+        // Configuration
+        const ADMIN_PASSWORD = 'NSL2024';
+        const GOOGLE_FOLDER_ID = '1-SuIec8eTJ1tLmzQeAinA73BqDVrX9ns';
+        const GOOGLE_SHEETS_ID = '1gb90hBrQDPWm8IUJPVulqfK2buTKQGUBMDusWyzl5iA';
+
+        // Data Storage
+        let equipmentData = JSON.parse(localStorage.getItem('equipment') || '[]');
+        let recordsData = JSON.parse(localStorage.getItem('records') || '[]');
+        let pendingRecords = JSON.parse(localStorage.getItem('pending') || '[]');
+        let currentEquipmentId = null;
+
+        // Sample Data
+        const sampleEquipment = [
+            { id: 'EQUIP-001', name: 'Main Motor - Unit A', kw: 15, hp: 20, rpm: 1500, frame: '180L', deBearing: '6309', ndeBearing: '6309', serial: 'MFG-2024-001' },
+            { id: 'EQUIP-002', name: 'Pump Motor - Unit B', kw: 11, hp: 15, rpm: 1500, frame: '160L', deBearing: '6308', ndeBearing: '6308', serial: 'MFG-2024-002' }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (equipmentData.length === 0) equipmentData = [...sampleEquipment];
+            setDateToday();
+            updateStats();
+            loadEquipmentList();
+        });
+
+        // Navigation
+        function switchTab(tabName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            const sectionMap = {
+                'home': 'homeSection',
+                'scan': 'scanSection',
+                'history': 'historySection',
+                'addRecord': 'addRecordSection',
+                'pending': 'pendingSection',
+                'admin': 'adminSection',
+                'approvalQueue': 'approvalQueueSection',
+                'equipment': 'equipmentSection',
+                'equipDetail': 'equipmentDetailSection'
+            };
+
+            if (sectionMap[tabName]) {
+                document.getElementById(sectionMap[tabName]).classList.add('active');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function showNavTab(tabName) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            switchTab(tabName);
+        }
+
+        // Utilities
+        function setDateToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('recordDate').value = today;
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.className = `alert show alert-${type}`;
+            alert.textContent = message;
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+
+        function getDateTime() {
+            return new Date().toLocaleString('en-IN', { 
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+
+        // Equipment Management
+        function loadEquipmentList() {
+            const container = document.getElementById('equipmentListContainer');
+            if (equipmentData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No equipment found</p></div>';
+                return;
+            }
+
+            container.innerHTML = equipmentData.map(equip => `
+                <div class="equip-card" onclick="viewEquipmentDetail('${equip.id}')">
+                    <h3>${equip.name}</h3>
+                    <p><strong>ID:</strong> ${equip.id}</p>
+                    <p><strong>Power:</strong> ${equip.kw} KW (${equip.hp} HP) | RPM: ${equip.rpm}</p>
+                    <p><strong>Serial:</strong> ${equip.serial}</p>
+                </div>
+            `).join('');
+        }
+
+        function filterEquipmentList() {
+            const searchTerm = document.getElementById('historySearch').value.toLowerCase();
+            const filtered = equipmentData.filter(e => 
+                e.name.toLowerCase().includes(searchTerm) || 
+                e.id.toLowerCase().includes(searchTerm)
+            );
+
+            const container = document.getElementById('equipmentListContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No equipment found</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(equip => `
+                <div class="equip-card" onclick="viewEquipmentDetail('${equip.id}')">
+                    <h3>${equip.name}</h3>
+                    <p><strong>ID:</strong> ${equip.id}</p>
+                    <p><strong>Power:</strong> ${equip.kw} KW</p>
+                </div>
+            `).join('');
+        }
+
+        function viewEquipmentDetail(equipmentId) {
+            const equip = equipmentData.find(e => e.id === equipmentId);
+            if (!equip) {
+                showAlert('Equipment not found', 'error');
+                return;
+            }
+
+            currentEquipmentId = equipmentId;
+            document.getElementById('equipDetailName').textContent = equip.name;
+            document.getElementById('detailId').textContent = equip.id;
+            document.getElementById('detailPower').textContent = `${equip.kw} KW (${equip.hp} HP) | ${equip.rpm} RPM`;
+            document.getElementById('detailSerial').textContent = equip.serial;
+
+            const equipRecords = recordsData.filter(r => r.equipmentId === equipmentId && r.status === 'Approved');
+            const lastRecord = equipRecords[equipRecords.length - 1];
+            document.getElementById('detailLastService').textContent = lastRecord ? lastRecord.date : 'Not serviced';
+
+            loadEquipmentHistory(equipmentId);
+            switchTab('equipDetail');
+        }
+
+        function loadEquipmentHistory(equipmentId) {
+            const history = recordsData.filter(h => h.equipmentId === equipmentId && h.status === 'Approved');
+            const container = document.getElementById('equipmentHistoryList');
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No records found</p></div>';
+                return;
+            }
+
+            container.innerHTML = history.reverse().map(record => `
+                <div class="history-item">
+                    <h4>${record.task}</h4>
+                    <p><strong>Date:</strong> ${record.date} | <strong>Tech:</strong> ${record.technician}</p>
+                    <p><strong>Status:</strong> <span class="badge badge-${record.status.toLowerCase()}">${record.status}</span></p>
+                    <p><strong>Hours:</strong> ${record.hours}h | <strong>Parts:</strong> ${record.parts || 'None'}</p>
+                    <p><strong>Notes:</strong> ${record.notes}</p>
+                    <p style="font-size: 11px; color: #999;"><strong>Saved:</strong> ${record.savedAt}</p>
+                </div>
+            `).join('');
+        }
+
+        // Search Functions
+        function searchEquipmentById() {
+            const id = document.getElementById('equipmentSearchId').value.toUpperCase();
+            const equip = equipmentData.find(e => e.id === id);
+            if (equip) {
+                viewEquipmentDetail(id);
+                switchTab('equipDetail');
+            } else {
+                showAlert('Equipment not found', 'error');
+            }
+        }
+
+        // QR Scanning
+        let scanner = null;
+        function startQRScan() {
+            const video = document.getElementById('video');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.play();
+                    document.getElementById('startScanBtn').style.display = 'none';
+                    document.getElementById('stopScanBtn').style.display = 'block';
+                    
+                    scanner = setInterval(() => scanQRCode(video), 100);
+                })
+                .catch(err => showAlert('Camera access denied', 'error'));
+        }
+
+        function stopQRScan() {
+            if (scanner) clearInterval(scanner);
+            const video = document.getElementById('video');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('startScanBtn').style.display = 'block';
+            document.getElementById('stopScanBtn').style.display = 'none';
+        }
+
+        function scanQRCode(video) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                stopQRScan();
+                const equipmentId = code.data.toUpperCase();
+                document.getElementById('equipmentSearchId').value = equipmentId;
+                searchEquipmentById();
+            }
+        }
+
+        function scanQRFromFile() {
+            const file = document.getElementById('qrFile').files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0);
+
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        document.getElementById('equipmentSearchId').value = code.data.toUpperCase();
+                        searchEquipmentById();
+                    } else {
+                        showAlert('No QR code found', 'error');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Record Management
+        function submitRecord(e) {
+            e.preventDefault();
+
+            const record = {
+                id: `MH-${Date.now()}`,
+                equipmentId: document.getElementById('recordEquipId').value,
+                equipmentName: document.getElementById('recordEquipName').value,
+                date: document.getElementById('recordDate').value,
+                task: document.getElementById('recordTask').value,
+                status: 'Pending',
+                technician: document.getElementById('recordTechnician').value,
+                hours: parseFloat(document.getElementById('recordHours').value) || 0,
+                parts: document.getElementById('recordParts').value,
+                notes: document.getElementById('recordNotes').value,
+                nextService: document.getElementById('recordNextService').value,
+                submittedAt: getDateTime(),
+                submittedBy: document.getElementById('recordTechnician').value
+            };
+
+            pendingRecords.push(record);
+            localStorage.setItem('pending', JSON.stringify(pendingRecords));
+
+            showAlert('✓ Record submitted for admin approval!', 'success');
+            document.getElementById('recordForm').reset();
+            setDateToday();
+            updateStats();
+            setTimeout(() => switchTab('home'), 1500);
+        }
+
+        // Admin Functions
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('adminPassword').style.display = 'none';
+                document.querySelector('[onclick="checkAdminPassword()"]').style.display = 'none';
+                showAlert('✓ Admin access granted', 'success');
+                loadAdminDashboard();
+            } else {
+                showAlert('❌ Incorrect password', 'error');
+            }
+        }
+
+        function loadAdminDashboard() {
+            const dashboard = document.getElementById('adminDashboard');
+            dashboard.style.display = 'block';
+
+            document.getElementById('adminEquipCount').textContent = equipmentData.length;
+            document.getElementById('adminRecordCount').textContent = recordsData.filter(r => r.status === 'Approved').length;
+            document.getElementById('adminPendingCount').textContent = pendingRecords.length;
+            document.getElementById('adminLastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminPassword').style.display = 'block';
+            document.getElementById('adminPassword').value = '';
+            document.querySelector('[onclick="checkAdminPassword()"]').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            showAlert('Logged out', 'success');
+        }
+
+        // Approval Queue
+        function loadApprovalQueue() {
+            const container = document.getElementById('approvalQueueList');
+            
+            if (pendingRecords.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No pending records</p></div>';
+                return;
+            }
+
+            container.innerHTML = pendingRecords.map((record, index) => `
+                <div class="approval-item new">
+                    <h4>${record.equipmentName} - ${record.task}</h4>
+                    <p><strong>Submitted:</strong> ${record.submittedAt}</p>
+                    <p><strong>By:</strong> ${record.submittedBy} | <strong>Date:</strong> ${record.date}</p>
+                    <p><strong>Hours:</strong> ${record.hours}h | <strong>Status:</strong> ${record.status}</p>
+                    <p><strong>Notes:</strong> ${record.notes}</p>
+                    
+                    <div class="approval-actions">
+                        <button class="btn btn-success btn-small" onclick="approveRecord(${index})">✓ Approve</button>
+                        <button class="btn btn-danger btn-small" onclick="rejectRecord(${index})">✕ Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveRecord(index) {
+            const record = pendingRecords[index];
+            record.status = 'Approved';
+            record.approvedAt = getDateTime();
+            record.approvedBy = 'Admin';
+            
+            recordsData.push(record);
+            pendingRecords.splice(index, 1);
+
+            localStorage.setItem('records', JSON.stringify(recordsData));
+            localStorage.setItem('pending', JSON.stringify(pendingRecords));
+
+            showAlert('✓ Record approved and saved to database!', 'success');
+            loadApprovalQueue();
+            updateStats();
+        }
+
+        function rejectRecord(index) {
+            if (confirm('Reject this record?')) {
+                pendingRecords.splice(index, 1);
+                localStorage.setItem('pending', JSON.stringify(pendingRecords));
+                showAlert('Record rejected', 'warning');
+                loadApprovalQueue();
+                updateStats();
+            }
+        }
+
+        // Equipment Creation
+        function saveEquipment(e) {
+            e.preventDefault();
+
+            const equip = {
+                id: document.getElementById('equipId').value.toUpperCase(),
+                name: document.getElementById('equipName').value,
+                kw: parseFloat(document.getElementById('equipKW').value) || 0,
+                hp: parseFloat(document.getElementById('equipHP').value) || 0,
+                rpm: parseInt(document.getElementById('equipRPM').value) || 0,
+                frame: document.getElementById('equipFrame').value,
+                deBearing: document.getElementById('equipDEBearing').value,
+                ndeBearing: document.getElementById('equipNDEBearing').value,
+                serial: document.getElementById('equipSerial').value,
+                createdAt: getDateTime()
+            };
+
+            equipmentData.push(equip);
+            localStorage.setItem('equipment', JSON.stringify(equipmentData));
+
+            showAlert('✓ Equipment created successfully!', 'success');
+            document.getElementById('equipmentForm').reset();
+            loadEquipmentList();
+            setTimeout(() => switchTab('admin'), 1500);
+        }
+
+        // Stats
+        function updateStats() {
+            const approved = recordsData.filter(r => r.status === 'Approved').length;
+            const pending = pendingRecords.length;
+
+            document.getElementById('homeEquipCount').textContent = equipmentData.length;
+            document.getElementById('homeRecordCount').textContent = approved;
+            document.getElementById('homePendingCount').textContent = pending;
+
+            if (pending > 0) {
+                document.getElementById('pendingBadge').style.display = 'flex';
+                document.getElementById('pendingBadge').textContent = pending;
+            } else {
+                document.getElementById('pendingBadge').style.display = 'none';
+            }
+        }
+
+        // Load pending list
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new MutationObserver(() => {
+                if (document.getElementById('pendingSection').classList.contains('active')) {
+                    loadApprovalQueue();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+
+        // Watch for section changes
+        const originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            originalSwitchTab(tabName);
+            if (tabName === 'approvalQueue') loadApprovalQueue();
+            if (tabName === 'pending') loadApprovalQueue();
+        };
+    </script>
+</body>
+</html>
