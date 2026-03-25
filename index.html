@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NSL Equipment History Card - Equipment Maintenance Tracking System">
+    <meta name="theme-color" content="#FF6B35">
+    <title>NSL Equipment History Card</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23FF6B35' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-weight='bold'>⚙</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23FF6B35' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-weight='bold'>⚙</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --success: #06A77D;
+            --danger: #D62828;
+            --warning: #F77F00;
+            --light: #ECEFF1;
+            --dark: #263238;
+            --border-radius: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            padding-bottom: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Button Group */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-buttons .btn {
+            flex: 1;
+            min-width: 120px;
+            margin-bottom: 0;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        /* Video Feed for QR Scanning */
+        #video {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: block;
+            background: #000;
+        }
+
+        /* History List */
+        .history-item {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .history-item:active {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item h3 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .history-item p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .badge-success {
+            background: rgba(6, 168, 125, 0.2);
+            color: var(--success);
+        }
+
+        .badge-pending {
+            background: rgba(247, 127, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-failed {
+            background: rgba(214, 40, 40, 0.2);
+            color: var(--danger);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: rgba(6, 168, 125, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: rgba(214, 40, 40, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .alert-warning {
+            background: rgba(247, 127, 0, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            opacity: 0.95;
+            margin-bottom: 5px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid var(--light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .nav-buttons .btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .history-item {
+                padding: 12px;
+            }
+
+            .history-item h3 {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>⚙️ NSL Equipment History</h1>
+        <p>MRN Group - NSL Unit 2</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="content">
+            <!-- Alert Messages -->
+            <div id="alert" class="alert"></div>
+
+            <!-- Home Section -->
+            <div id="homeSection" class="section active">
+                <div class="info-card">
+                    <h3>Welcome to Equipment History Card</h3>
+                    <p>Track maintenance records for all equipment in real-time.</p>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" onclick="goToSection('scanSection')">
+                        📷 Scan QR Code
+                    </button>
+                    <button class="btn btn-secondary" onclick="goToSection('searchSection')">
+                        🔍 Search Equipment
+                    </button>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-success" onclick="goToSection('addRecordSection')">
+                        ➕ Add Record
+                    </button>
+                    <button class="btn btn-warning" onclick="goToSection('equipmentListSection')">
+                        📋 Equipment List
+                    </button>
+                </div>
+
+                <button class="btn btn-outline" onclick="goToSection('adminSection')">
+                    🔐 Admin Panel
+                </button>
+            </div>
+
+            <!-- Scan QR Section -->
+            <div id="scanSection" class="section">
+                <h2>📷 Scan QR Code</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <video id="video" width="300" height="300" style="border: 2px solid var(--primary);"></video>
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-primary" id="startScanBtn" onclick="startQRScan()">
+                            Start Camera
+                        </button>
+                        <button class="btn btn-secondary" id="stopScanBtn" onclick="stopQRScan()" style="display: none;">
+                            Stop Camera
+                        </button>
+                    </div>
+                    <input type="file" id="qrFile" accept="image/*" onchange="scanQRFromFile()" style="display: none;">
+                    <button class="btn btn-outline" onclick="document.getElementById('qrFile').click()">
+                        🖼️ Upload QR Image
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>Or enter Equipment ID:</label>
+                    <input type="text" id="equipmentId" placeholder="E.g., EQUIP-001" />
+                    <button class="btn btn-primary" onclick="searchEquipmentById()">
+                        Search
+                    </button>
+                </div>
+
+                <button class="btn btn-outline" onclick="goToSection('homeSection')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <!-- Search Section -->
+            <div id="searchSection" class="section">
+                <h2>🔍 Search Equipment</h2>
+                
+                <div class="form-group">
+                    <label>Equipment ID or Name:</label>
+                    <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterEquipment()" />
+                </div>
+
+                <div id="searchResults" style="max-height: 400px; overflow-y: auto;">
+                    <div class="empty-state">
+                        <p>Enter search term to find equipment</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" onclick="goToSection('homeSection')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <!-- Equipment Detail Section -->
+            <div id="equipmentDetailSection" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 id="equipmentName">Equipment Details</h2>
+                    <button class="btn btn-outline" onclick="goToSection('homeSection')" style="width: auto; padding: 8px 12px; font-size: 14px;">✕</button>
+                </div>
+
+                <div class="info-card">
+                    <p><strong>Equipment ID:</strong> <span id="detailId">-</span></p>
+                    <p><strong>Power:</strong> <span id="detailPower">-</span></p>
+                    <p><strong>Serial:</strong> <span id="detailSerial">-</span></p>
+                    <p><strong>Last Service:</strong> <span id="detailLastService">-</span></p>
+                </div>
+
+                <h3 style="color: var(--primary); margin-top: 20px; margin-bottom: 15px;">Maintenance History</h3>
+                <div id="historyList">
+                    <div class="empty-state">
+                        <p>No maintenance records found</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="goToSection('addRecordSection')">
+                    ➕ Add New Record
+                </button>
+                <button class="btn btn-outline" onclick="goToSection('homeSection')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <!-- Add Record Section -->
+            <div id="addRecordSection" class="section">
+                <h2>➕ Add Maintenance Record</h2>
+
+                <form id="recordForm" onsubmit="saveRecord(event)">
+                    <div class="form-group">
+                        <label>Equipment ID *</label>
+                        <input type="text" id="recordEquipmentId" placeholder="E.g., EQUIP-001" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date of Service *</label>
+                        <input type="date" id="recordDate" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Task Performed *</label>
+                        <input type="text" id="recordTask" placeholder="What was done?" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <select id="recordStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="Completed">✓ Completed</option>
+                            <option value="Pending">⏳ Pending</option>
+                            <option value="Failed">✕ Failed</option>
+                            <option value="Partial">◐ Partial</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technician Name *</label>
+                        <input type="text" id="recordTechnician" placeholder="Your name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hours Spent</label>
+                        <input type="number" id="recordHours" placeholder="0.5" step="0.5" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parts Used</label>
+                        <textarea id="recordParts" placeholder="List parts used..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="recordNotes" placeholder="Additional observations..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Next Service Due</label>
+                        <input type="date" id="recordNextService" />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        💾 Save Record
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="goToSection('homeSection')">
+                        ← Cancel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Equipment List Section -->
+            <div id="equipmentListSection" class="section">
+                <h2>📋 All Equipment</h2>
+                
+                <div id="equipmentListContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading equipment...</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" onclick="goToSection('homeSection')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <!-- Admin Panel Section -->
+            <div id="adminSection" class="section">
+                <h2>🔐 Admin Panel</h2>
+
+                <div class="form-group">
+                    <label>Admin Password:</label>
+                    <input type="password" id="adminPassword" placeholder="Enter password" />
+                </div>
+
+                <button class="btn btn-primary" onclick="checkAdminPassword()">
+                    Unlock Admin Panel
+                </button>
+
+                <div id="adminContent" style="display: none; margin-top: 20px;">
+                    <h3 style="color: var(--secondary); margin-bottom: 15px;">Admin Functions</h3>
+
+                    <button class="btn btn-secondary" onclick="loadAdminDashboard()">
+                        📊 Dashboard
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="goToSection('addEquipmentSection')">
+                        ➕ Add Equipment
+                    </button>
+
+                    <button class="btn btn-danger" onclick="if(confirm('Clear all local data?')) clearLocalStorage()">
+                        🗑️ Clear Data
+                    </button>
+
+                    <button class="btn btn-outline" onclick="logoutAdmin()">
+                        🚪 Logout
+                    </button>
+
+                    <div id="adminDashboard" style="margin-top: 20px; display: none;">
+                        <h3 style="color: var(--secondary); margin-bottom: 15px;">Statistics</h3>
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <p><strong>Total Equipment:</strong> <span id="statEquipment">0</span></p>
+                        </div>
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <p><strong>Total Records:</strong> <span id="statRecords">0</span></p>
+                        </div>
+                        <div style="background: var(--light); padding: 15px; border-radius: 8px;">
+                            <p><strong>Total Hours:</strong> <span id="statHours">0</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" onclick="goToSection('homeSection')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <!-- Add Equipment Section -->
+            <div id="addEquipmentSection" class="section">
+                <h2>➕ Add New Equipment</h2>
+
+                <form id="equipmentForm" onsubmit="saveEquipment(event)">
+                    <div class="form-group">
+                        <label>Equipment ID *</label>
+                        <input type="text" id="equipId" placeholder="E.g., EQUIP-001" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Equipment Name *</label>
+                        <input type="text" id="equipName" placeholder="Motor, Pump, etc." required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Power (KW)</label>
+                        <input type="number" id="equipKW" placeholder="15" step="0.1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Power (HP)</label>
+                        <input type="number" id="equipHP" placeholder="20" step="0.1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>RPM</label>
+                        <input type="number" id="equipRPM" placeholder="1500" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Frame Size</label>
+                        <input type="text" id="equipFrame" placeholder="180L" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Serial Number</label>
+                        <input type="text" id="equipSerial" placeholder="MFG-2024-001" />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        ✓ Create Equipment
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="goToSection('adminSection')">
+                        ← Back to Admin
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>NSL Unit 2 - Equipment History Card v1.0</p>
+        <p>📧 akshaybpatil575@gmail.com | 📞 +91 96116 31171</p>
+    </div>
+
+    <!-- jsQR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <!-- Main Application Script -->
+    <script>
+        // Configuration
+        const ADMIN_PASSWORD = 'NSL2024';
+
+        // Sample Data
+        const sampleEquipment = [
+            {
+                id: 'EQUIP-001',
+                name: 'Main Motor - Unit A',
+                kw: 15,
+                hp: 20,
+                rpm: 1500,
+                frame: '180L',
+                serial: 'MFG-2024-001',
+                lastService: '2026-03-15'
+            },
+            {
+                id: 'EQUIP-002',
+                name: 'Pump Motor - Unit B',
+                kw: 11,
+                hp: 15,
+                rpm: 1500,
+                frame: '160L',
+                serial: 'MFG-2024-002',
+                lastService: '2026-03-10'
+            }
+        ];
+
+        const sampleHistory = [
+            {
+                id: 'MH-001',
+                equipmentId: 'EQUIP-001',
+                date: '2026-03-20',
+                task: 'Bearing lubrication and inspection',
+                status: 'Completed',
+                technician: 'Raj Kumar',
+                hours: 2.5,
+                parts: 'Bearing grease (2kg)',
+                notes: 'All readings normal',
+                nextService: '2026-06-20'
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setDateToday();
+            loadEquipmentList();
+        });
+
+        // Utility Functions
+        function setDateToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('recordDate').value = today;
+        }
+
+        function goToSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.className = `alert show alert-${type}`;
+            alert.textContent = message;
+            setTimeout(() => alert.classList.remove('show'), 4000);
+        }
+
+        // Equipment Functions
+        function loadEquipmentList() {
+            const container = document.getElementById('equipmentListContainer');
+            if (sampleEquipment.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No equipment found</p></div>';
+                return;
+            }
+
+            container.innerHTML = sampleEquipment.map(equip => `
+                <div class="history-item" onclick="viewEquipmentDetail('${equip.id}')">
+                    <h3>${equip.name}</h3>
+                    <p><strong>ID:</strong> ${equip.id}</p>
+                    <p><strong>Power:</strong> ${equip.kw} KW (${equip.hp} HP)</p>
+                    <p><strong>Last Service:</strong> ${equip.lastService}</p>
+                </div>
+            `).join('');
+        }
+
+        function viewEquipmentDetail(equipmentId) {
+            const equip = sampleEquipment.find(e => e.id === equipmentId);
+            if (!equip) {
+                showAlert('Equipment not found', 'error');
+                return;
+            }
+
+            document.getElementById('equipmentName').textContent = equip.name;
+            document.getElementById('detailId').textContent = equip.id;
+            document.getElementById('detailPower').textContent = `${equip.kw} KW (${equip.hp} HP)`;
+            document.getElementById('detailSerial').textContent = equip.serial;
+            document.getElementById('detailLastService').textContent = equip.lastService;
+
+            loadEquipmentHistory(equipmentId);
+            goToSection('equipmentDetailSection');
+        }
+
+        function loadEquipmentHistory(equipmentId) {
+            const history = sampleHistory.filter(h => h.equipmentId === equipmentId);
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No maintenance records</p></div>';
+                return;
+            }
+
+            container.innerHTML = history.map(record => `
+                <div class="history-item">
+                    <h3>${record.task}</h3>
+                    <p><strong>Date:</strong> ${record.date}</p>
+                    <p><strong>Technician:</strong> ${record.technician}</p>
+                    <p><strong>Hours:</strong> ${record.hours}h</p>
+                    <p><strong>Parts:</strong> ${record.parts || 'None'}</p>
+                    <p><strong>Notes:</strong> ${record.notes}</p>
+                    <span class="badge badge-${record.status.toLowerCase()}">${record.status}</span>
+                </div>
+            `).join('');
+        }
+
+        // Search Functions
+        function searchEquipmentById() {
+            const id = document.getElementById('equipmentId').value.toUpperCase();
+            const equip = sampleEquipment.find(e => e.id === id);
+            if (equip) {
+                viewEquipmentDetail(id);
+                goToSection('equipmentDetailSection');
+            } else {
+                showAlert('Equipment not found', 'error');
+            }
+        }
+
+        function filterEquipment() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const results = sampleEquipment.filter(e => 
+                e.name.toLowerCase().includes(searchTerm) || 
+                e.id.toLowerCase().includes(searchTerm)
+            );
+
+            const container = document.getElementById('searchResults');
+            if (results.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No results found</p></div>';
+                return;
+            }
+
+            container.innerHTML = results.map(equip => `
+                <div class="history-item" onclick="viewEquipmentDetail('${equip.id}'); goToSection('equipmentDetailSection');">
+                    <h3>${equip.name}</h3>
+                    <p>${equip.id}</p>
+                </div>
+            `).join('');
+        }
+
+        // QR Scan Functions
+        let scanner = null;
+        function startQRScan() {
+            const video = document.getElementById('video');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.play();
+                    startBtn.style.display = 'none';
+                    stopBtn.style.display = 'block';
+                    
+                    scanner = setInterval(() => {
+                        scanQRCode(video);
+                    }, 100);
+                })
+                .catch(err => {
+                    showAlert('Camera access denied', 'error');
+                    console.error(err);
+                });
+        }
+
+        function stopQRScan() {
+            if (scanner) clearInterval(scanner);
+            const video = document.getElementById('video');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('startScanBtn').style.display = 'block';
+            document.getElementById('stopScanBtn').style.display = 'none';
+        }
+
+        function scanQRCode(video) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                stopQRScan();
+                const equipmentId = code.data.toUpperCase();
+                document.getElementById('equipmentId').value = equipmentId;
+                searchEquipmentById();
+            }
+        }
+
+        function scanQRFromFile() {
+            const file = document.getElementById('qrFile').files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0);
+
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        const equipmentId = code.data.toUpperCase();
+                        document.getElementById('equipmentId').value = equipmentId;
+                        searchEquipmentById();
+                    } else {
+                        showAlert('No QR code found in image', 'error');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Record Functions
+        function saveRecord(e) {
+            e.preventDefault();
+            
+            const record = {
+                id: `MH-${Date.now()}`,
+                equipmentId: document.getElementById('recordEquipmentId').value,
+                date: document.getElementById('recordDate').value,
+                task: document.getElementById('recordTask').value,
+                status: document.getElementById('recordStatus').value,
+                technician: document.getElementById('recordTechnician').value,
+                hours: parseFloat(document.getElementById('recordHours').value) || 0,
+                parts: document.getElementById('recordParts').value,
+                notes: document.getElementById('recordNotes').value,
+                nextService: document.getElementById('recordNextService').value,
+                createdAt: new Date().toLocaleString()
+            };
+
+            sampleHistory.push(record);
+            localStorage.setItem('maintenanceRecords', JSON.stringify(sampleHistory));
+
+            showAlert('✓ Record saved successfully!', 'success');
+            document.getElementById('recordForm').reset();
+            setDateToday();
+            setTimeout(() => goToSection('homeSection'), 1500);
+        }
+
+        function saveEquipment(e) {
+            e.preventDefault();
+
+            const equip = {
+                id: document.getElementById('equipId').value.toUpperCase(),
+                name: document.getElementById('equipName').value,
+                kw: parseFloat(document.getElementById('equipKW').value) || 0,
+                hp: parseFloat(document.getElementById('equipHP').value) || 0,
+                rpm: parseInt(document.getElementById('equipRPM').value) || 0,
+                frame: document.getElementById('equipFrame').value,
+                serial: document.getElementById('equipSerial').value,
+                lastService: new Date().toISOString().split('T')[0]
+            };
+
+            sampleEquipment.push(equip);
+            localStorage.setItem('equipmentList', JSON.stringify(sampleEquipment));
+            loadEquipmentList();
+
+            showAlert('✓ Equipment added successfully!', 'success');
+            document.getElementById('equipmentForm').reset();
+            setTimeout(() => goToSection('adminSection'), 1500);
+        }
+
+        // Admin Functions
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('adminPassword').style.display = 'none';
+                document.querySelector('[onclick="checkAdminPassword()"]').style.display = 'none';
+                showAlert('✓ Admin access granted', 'success');
+            } else {
+                showAlert('❌ Incorrect password', 'error');
+            }
+        }
+
+        function loadAdminDashboard() {
+            const dashboard = document.getElementById('adminDashboard');
+            dashboard.style.display = 'block';
+
+            document.getElementById('statEquipment').textContent = sampleEquipment.length;
+            document.getElementById('statRecords').textContent = sampleHistory.length;
+            const totalHours = sampleHistory.reduce((sum, h) => sum + h.hours, 0);
+            document.getElementById('statHours').textContent = totalHours.toFixed(1);
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminPassword').style.display = 'block';
+            document.getElementById('adminPassword').value = '';
+            document.querySelector('[onclick="checkAdminPassword()"]').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            showAlert('Logged out from admin panel', 'success');
+        }
+
+        function clearLocalStorage() {
+            localStorage.clear();
+            sampleEquipment.length = 0;
+            sampleHistory.length = 0;
+            showAlert('All data cleared', 'success');
+            goToSection('homeSection');
+        }
+    </script>
+</body>
+</html>
