@@ -3,154 +3,1160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NSL Equipment History — Scan a QR code or search for equipment">
   <meta name="theme-color" content="#FF6B35">
+  <meta name="description" content="NSL Equipment History Card - MRN Group NSL Unit 2">
   <title>NSL Equipment History</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary:  #FF6B35;
+      --secondary:#004E89;
+      --success:  #06A77D;
+      --danger:   #D62828;
+      --warning:  #F77F00;
+      --light:    #f0f4f8;
+      --dark:     #263238;
+      --radius:   12px;
+      --shadow:   0 4px 15px rgba(0,0,0,0.1);
+      --transition: all 0.25s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--dark);
+      padding-bottom: 30px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header h1  { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+    .header p   { font-size: 11px; opacity: 0.9; }
+    .badge-indicator {
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* ── Nav ── */
+    .nav-top {
+      background: white;
+      display: flex;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 62px;
+      z-index: 90;
+      scrollbar-width: none;
+    }
+    .nav-top::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      flex: 1;
+      padding: 12px 14px;
+      border: none;
+      background: white;
+      color: #777;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .nav-btn:hover  { color: var(--primary); }
+
+    /* ── Content ── */
+    .content {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* ── Sections ── */
+    .section {
+      background: white;
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+      display: none;
+      animation: slideIn 0.25s ease;
+    }
+    .section.active { display: block; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section h2 {
+      color: var(--primary);
+      font-size: 20px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section h3 {
+      color: var(--secondary);
+      font-size: 15px;
+      margin: 18px 0 12px;
+    }
+
+    /* ── Back Header ── */
+    .back-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .back-btn {
+      background: var(--light);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--primary);
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .back-btn:active { transform: scale(0.94); }
+
+    /* ── Info Card ── */
+    .info-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 18px 20px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+    .info-card h3   { font-size: 17px; margin-bottom: 8px; color: white; }
+    .info-card p    { font-size: 13px; opacity: 0.95; margin-bottom: 4px; }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .stat-box {
+      background: var(--light);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .stat-num   { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 11px; color: #777; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      margin-bottom: 10px;
+      font-family: inherit;
+      text-decoration: none;
+    }
+    .btn:active   { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary   { background: var(--primary);   color: white; }
+    .btn-secondary { background: var(--secondary); color: white; }
+    .btn-success   { background: var(--success);   color: white; }
+    .btn-danger    { background: var(--danger);     color: white; }
+    .btn-warning   { background: var(--warning);    color: white; }
+    .btn-outline   { background: white; color: var(--primary); border: 2px solid var(--primary); }
+    .btn-ghost     { background: var(--light); color: var(--dark); }
+    .btn-sm        { padding: 8px 14px; font-size: 12px; width: auto; margin-bottom: 0; }
+    .btn-group     { display: flex; gap: 10px; }
+    .btn-group .btn { flex: 1; margin-bottom: 0; }
+
+    /* ── Forms ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--dark);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: var(--transition);
+      -webkit-appearance: none;
+      appearance: none;
+      background: white;
+      color: var(--dark);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* ── Search Bar ── */
+    .search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .search-bar input { flex: 1; margin-bottom: 0; }
+    .search-bar .btn  { width: auto; padding: 11px 18px; margin-bottom: 0; }
+
+    /* ── Video ── */
+    #video {
+      width: 100%;
+      border-radius: var(--radius);
+      background: #000;
+      display: block;
+      margin-bottom: 12px;
+      max-height: 260px;
+      object-fit: cover;
+    }
+
+    /* ── Equipment Cards ── */
+    .equip-card {
+      background: linear-gradient(135deg, #f5f7fa, #dde4ef);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .equip-card:active { transform: translateX(4px); box-shadow: var(--shadow); }
+    .equip-card h3 { color: var(--primary); font-size: 15px; margin-bottom: 6px; }
+    .equip-card p  { font-size: 12px; color: #666; margin-bottom: 3px; }
+
+    /* ── History Items ── */
+    .history-item {
+      background: var(--light);
+      border-left: 4px solid var(--success);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+    .history-item.s-pending { border-left-color: var(--warning); }
+    .history-item.s-failed  { border-left-color: var(--danger); }
+    .history-item.s-partial { border-left-color: var(--secondary); }
+    .history-item h4 { color: var(--secondary); font-size: 14px; margin-bottom: 7px; }
+    .history-item p  { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .history-item strong { color: var(--dark); }
+
+    /* ── Pending Items ── */
+    .pending-item {
+      background: rgba(247,127,0,0.05);
+      border: 2px solid var(--warning);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+    }
+    .pending-item h4 { font-size: 14px; margin-bottom: 8px; color: var(--dark); }
+    .pending-item p  { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .approval-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .approval-actions .btn { flex: 1; padding: 8px; font-size: 12px; margin-bottom: 0; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+    .badge-green  { background: rgba(6,167,125,0.15);  color: var(--success); }
+    .badge-yellow { background: rgba(247,127,0,0.15);  color: var(--warning); }
+    .badge-red    { background: rgba(214,40,40,0.15);   color: var(--danger); }
+    .badge-blue   { background: rgba(0,78,137,0.15);   color: var(--secondary); }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 13px 16px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      display: none;
+      border-left: 3px solid;
+      animation: slideIn 0.25s ease;
+    }
+    .alert.show    { display: block; }
+    .alert-success { background: rgba(6,167,125,0.1);  border-color: var(--success); color: #057a5b; }
+    .alert-error   { background: rgba(214,40,40,0.1);   border-color: var(--danger);  color: var(--danger); }
+    .alert-warning { background: rgba(247,127,0,0.1);   border-color: var(--warning); color: #b85c00; }
+    .alert-info    { background: rgba(102,126,234,0.1); border-color: #667eea;        color: #445cc0; }
+
+    /* ── Loading ── */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 4px solid #e0e0e0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 24px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: #aaa;
+    }
+    .empty-state .ei { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+
+    /* ── Note Box ── */
+    .note-box {
+      background: rgba(247,127,0,0.08);
+      border-left: 3px solid var(--warning);
+      padding: 11px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* ── 2-col grid ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── QR Print ── */
+    @media print {
+      body > *:not(#printArea) { display: none !important; }
+      #printArea {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+    }
+    #printArea { display: none; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      margin-top: 10px;
+      padding: 0 16px 10px;
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 17px; }
+      .content   { padding: 14px 12px; }
+      .section   { padding: 16px 14px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .two-col   { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; }
+      .btn-group .btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ── Header ──────────────────────────────────────────────────────────────── -->
-<header class="header">
-  <div class="header-brand">
-    <div class="header-logo">⚙</div>
-    <div>
-      <div class="header-title">NSL Equipment History</div>
-      <div class="header-sub">MRN Group — NSL Unit 2</div>
-    </div>
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<div class="header">
+  <div>
+    <h1>⚙️ NSL Equipment History</h1>
+    <p>MRN Group — NSL Unit 2</p>
   </div>
-  <div class="header-actions">
-    <a href="admin.html" class="btn btn-ghost btn-sm">🔐 Admin</a>
-  </div>
-</header>
+  <div class="badge-indicator" id="pendingBadge">0</div>
+</div>
 
-<!-- ── Nav Tabs ─────────────────────────────────────────────────────────────── -->
-<nav class="nav-tabs">
-  <button class="nav-tab active" data-tab="home"   onclick="setActiveTab('home')">🏠 Home</button>
-  <button class="nav-tab"        data-tab="scan"   onclick="setActiveTab('scan')">📷 Scan QR</button>
-  <button class="nav-tab"        data-tab="browse" onclick="setActiveTab('browse')">📋 Browse</button>
-</nav>
+<!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+<div class="nav-top">
+  <button class="nav-btn active" onclick="showTab('home')">🏠 Home</button>
+  <button class="nav-btn"        onclick="showTab('scan')">📷 Scan</button>
+  <button class="nav-btn"        onclick="showTab('history')">📋 History</button>
+  <button class="nav-btn"        onclick="showTab('pending')">⏳ Pending</button>
+  <button class="nav-btn"        onclick="showTab('admin')">🔐 Admin</button>
+</div>
 
-<!-- ── Alert ────────────────────────────────────────────────────────────────── -->
-<div class="page">
+<!-- ── Content ──────────────────────────────────────────────────────────── -->
+<div class="content">
   <div id="alert" class="alert"></div>
 
-  <!-- ── HOME ────────────────────────────────────────────────────────────── -->
-  <div id="tab-home" class="tab-section">
-
-    <!-- Stats Row -->
-    <div class="stats-grid" style="margin-top:4px;">
-      <div class="stat-box">
-        <div class="stat-num" id="statEquip">—</div>
-        <div class="stat-label">Equipment</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" style="color:var(--green);">✓</div>
-        <div class="stat-label">Tracked</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" style="color:var(--orange);">QR</div>
-        <div class="stat-label">Ready</div>
-      </div>
+  <!-- ══ HOME ══════════════════════════════════════════════════════════ -->
+  <div id="sec-home" class="section active">
+    <div class="info-card">
+      <h3>🎯 Welcome</h3>
+      <p>Professional Equipment Maintenance Tracking System</p>
+      <p style="margin-top:6px;font-size:11px;opacity:0.8;">Scan a QR code or search to get started</p>
     </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="homeEquipCount">—</div><div class="stat-label">Equipment</div></div>
+      <div class="stat-box"><div class="stat-num" id="homeRecordCount" style="color:var(--success);">—</div><div class="stat-label">Records</div></div>
+      <div class="stat-box"><div class="stat-num" id="homePendingCount" style="color:var(--warning);">—</div><div class="stat-label">Pending</div></div>
+    </div>
+    <button class="btn btn-primary"   onclick="showTab('scan')">📷 Scan QR Code or Search</button>
+    <button class="btn btn-secondary" onclick="showTab('history')">📋 View Equipment History</button>
+    <button class="btn btn-success"   onclick="showTab('addRecord')">➕ Add Maintenance Record</button>
+    <button class="btn btn-outline"   onclick="showTab('admin')">🔐 Admin Panel</button>
+  </div>
 
-    <!-- Quick Search -->
-    <div class="card">
-      <h3 style="margin-bottom:12px;">Quick Search by Equipment ID</h3>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="e.g. EQ001" style="text-transform:uppercase;">
-        <button class="btn btn-primary" onclick="doSearch()">🔍</button>
+  <!-- ══ SCAN ══════════════════════════════════════════════════════════ -->
+  <div id="sec-scan" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('home')">← Back</button>
+      <h2 style="margin:0;">📷 Scan or Search</h2>
+    </div>
+    <h3>Option 1: Scan QR Code</h3>
+    <video id="video" playsinline></video>
+    <div class="btn-group" style="margin-bottom:12px;">
+      <button class="btn btn-primary" id="startScanBtn" onclick="startScan()">▶ Start Camera</button>
+      <button class="btn btn-ghost"   id="stopScanBtn"  onclick="stopScan()" style="display:none;">■ Stop Camera</button>
+    </div>
+    <input type="file" id="qrFile" accept="image/*" onchange="scanFromFile()" style="display:none;">
+    <button class="btn btn-outline" onclick="document.getElementById('qrFile').click()">🖼️ Upload QR Image</button>
+
+    <h3>Option 2: Search by Equipment ID</h3>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Equipment ID (e.g. EQ001)" style="text-transform:uppercase;"
+             onkeydown="if(event.key==='Enter') doSearch()">
+      <button class="btn btn-primary" onclick="doSearch()">🔍 Search</button>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY ════════════════════════════════════════════════════════ -->
+  <div id="sec-history" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('home')">← Back</button>
+      <h2 style="margin:0;">📋 Equipment History</h2>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="historySearch" placeholder="Search equipment…" oninput="filterList()">
+      <button class="btn btn-primary" onclick="filterList()">🔍 Find</button>
+    </div>
+    <div id="equipList"><div class="spinner"></div></div>
+  </div>
+
+  <!-- ══ EQUIPMENT DETAIL ═══════════════════════════════════════════════ -->
+  <div id="sec-detail" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('history')">← Back to List</button>
+      <h2 id="detailTitle" style="margin:0; font-size:17px;">Equipment</h2>
+    </div>
+    <div class="info-card">
+      <p><strong>ID:</strong> <span id="detailId">—</span></p>
+      <p><strong>Power:</strong> <span id="detailPower">—</span></p>
+      <p><strong>Bearings (DE/NDE):</strong> <span id="detailBearings">—</span></p>
+      <p><strong>Serial No.:</strong> <span id="detailSerial">—</span></p>
+      <p><strong>Last Service:</strong> <span id="detailLastService">—</span></p>
+    </div>
+    <h3>📋 Maintenance Records <span id="recCountBadge" style="font-size:12px;color:#aaa;font-weight:400;"></span></h3>
+    <div id="equipHistory"><div class="empty-state"><p>No records yet</p></div></div>
+    <button class="btn btn-success" style="margin-top:8px;" onclick="showTab('addRecord')">➕ Add New Record</button>
+  </div>
+
+  <!-- ══ ADD RECORD ══════════════════════════════════════════════════════ -->
+  <div id="sec-addRecord" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('home')">← Back</button>
+      <h2 style="margin:0;">➕ Add Maintenance Record</h2>
+    </div>
+    <div class="note-box">📌 Records go to <strong>Pending</strong> for admin approval before saving.</div>
+    <form onsubmit="submitRecord(event)">
+      <div class="form-group"><label>Equipment ID *</label>
+        <input type="text" id="recEquipId" placeholder="EQ001" required style="text-transform:uppercase;"></div>
+      <div class="form-group"><label>Equipment Name *</label>
+        <input type="text" id="recEquipName" placeholder="Equipment name" required></div>
+      <div class="form-group"><label>Service Date *</label>
+        <input type="date" id="recDate" required></div>
+      <div class="form-group"><label>Task Performed *</label>
+        <input type="text" id="recTask" placeholder="What work was done?" required></div>
+      <div class="form-group"><label>Status *</label>
+        <select id="recStatus" required>
+          <option value="">Select…</option>
+          <option value="Completed">✓ Completed</option>
+          <option value="Pending">⏳ Pending</option>
+          <option value="Failed">✕ Failed</option>
+          <option value="Partial">◐ Partial</option>
+        </select></div>
+      <div class="form-group"><label>Technician Name *</label>
+        <input type="text" id="recTechnician" placeholder="Your name" required></div>
+      <div class="form-group"><label>Hours Spent</label>
+        <input type="number" id="recHours" placeholder="2.5" step="0.5" min="0"></div>
+      <div class="form-group"><label>Parts Used</label>
+        <textarea id="recParts" placeholder="List parts used…"></textarea></div>
+      <div class="form-group"><label>Notes / Observations</label>
+        <textarea id="recNotes" placeholder="Additional observations…"></textarea></div>
+      <div class="form-group"><label>Next Service Due</label>
+        <input type="date" id="recNextService"></div>
+      <button type="submit" id="submitRecordBtn" class="btn btn-success">📤 Submit for Approval</button>
+      <button type="button" class="btn btn-outline" onclick="showTab('home')">Cancel</button>
+    </form>
+  </div>
+
+  <!-- ══ PENDING (public view) ══════════════════════════════════════════ -->
+  <div id="sec-pending" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('home')">← Back</button>
+      <h2 style="margin:0;">⏳ Pending Approval</h2>
+    </div>
+    <div id="pendingList"><div class="spinner"></div></div>
+  </div>
+
+  <!-- ══ ADMIN ══════════════════════════════════════════════════════════ -->
+  <div id="sec-admin" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('home')">← Back</button>
+      <h2 style="margin:0;">🔐 Admin Panel</h2>
+    </div>
+    <!-- Login -->
+    <div id="adminLogin">
+      <div class="form-group">
+        <label>Admin Password</label>
+        <input type="password" id="adminPwd" placeholder="Enter password"
+               onkeydown="if(event.key==='Enter') adminLogin()">
       </div>
-      <p style="font-size:0.78rem; color:var(--text-muted);">
-        Or <button onclick="setActiveTab('scan')" style="background:none;border:none;color:var(--orange);cursor:pointer;font-weight:600;font-size:0.78rem;font-family:inherit;">scan a QR code</button> to jump straight to the equipment page.
+      <button class="btn btn-primary" onclick="adminLogin()">🔓 Unlock Admin Panel</button>
+    </div>
+    <!-- Dashboard (hidden until auth) -->
+    <div id="adminContent" style="display:none;">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" id="adminEquipCount">—</div><div class="stat-label">Equipment</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--warning);" id="adminPendingCount">—</div><div class="stat-label">Pending</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--success);">✓</div><div class="stat-label">Online</div></div>
+      </div>
+      <button class="btn btn-warning"   onclick="showTab('approvalQueue')">⏳ Approve Pending Records</button>
+      <button class="btn btn-secondary" onclick="showTab('addEquipment')">➕ Add New Equipment</button>
+      <button class="btn btn-success"   onclick="prepDirectRecord()">📝 Add Record Directly</button>
+      <button class="btn btn-ghost"     onclick="showTab('qrgen')">🔲 QR Code Generator</button>
+      <hr style="border:none;border-top:1px solid #eee;margin:16px 0 12px;">
+      <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger);" onclick="adminLogout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- ══ APPROVAL QUEUE ══════════════════════════════════════════════════ -->
+  <div id="sec-approvalQueue" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('admin')">← Back to Admin</button>
+      <h2 style="margin:0;">⏳ Review & Approve</h2>
+    </div>
+    <div id="approvalList"><div class="spinner"></div></div>
+    <button class="btn btn-ghost btn-sm" onclick="loadApprovalQueue()" style="margin-top:4px; width:auto;">🔄 Refresh</button>
+  </div>
+
+  <!-- ══ ADD EQUIPMENT ══════════════════════════════════════════════════ -->
+  <div id="sec-addEquipment" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('admin')">← Back to Admin</button>
+      <h2 style="margin:0;">➕ Add Equipment</h2>
+    </div>
+    <form onsubmit="saveEquipment(event)">
+      <div class="form-group"><label>Equipment ID *</label>
+        <input type="text" id="eqId" placeholder="EQ001" required style="text-transform:uppercase;"></div>
+      <div class="form-group"><label>Equipment Name *</label>
+        <input type="text" id="eqName" placeholder="Main Motor — Pump A" required></div>
+      <div class="form-group"><label>Location</label>
+        <input type="text" id="eqLocation" placeholder="Line 2, Bay 4"></div>
+      <div class="two-col">
+        <div class="form-group"><label>Power (KW)</label><input type="number" id="eqKW" placeholder="15" step="0.1"></div>
+        <div class="form-group"><label>Power (HP)</label><input type="number" id="eqHP" placeholder="20" step="0.1"></div>
+        <div class="form-group"><label>RPM</label><input type="number" id="eqRPM" placeholder="1500"></div>
+        <div class="form-group"><label>Frame Size</label><input type="text" id="eqFrame" placeholder="180L"></div>
+        <div class="form-group"><label>DE Bearing</label><input type="text" id="eqDE" placeholder="6309"></div>
+        <div class="form-group"><label>NDE Bearing</label><input type="text" id="eqNDE" placeholder="6309"></div>
+      </div>
+      <div class="form-group"><label>Serial Number</label>
+        <input type="text" id="eqSerial" placeholder="MFG-2024-001"></div>
+      <button type="submit" id="saveEquipBtn" class="btn btn-success">✓ Create Equipment</button>
+      <button type="button" class="btn btn-outline" onclick="showTab('admin')">Cancel</button>
+    </form>
+  </div>
+
+  <!-- ══ QR GENERATOR ════════════════════════════════════════════════════ -->
+  <div id="sec-qrgen" class="section">
+    <div class="back-header">
+      <button class="back-btn" onclick="showTab('admin')">← Back to Admin</button>
+      <h2 style="margin:0;">🔲 QR Generator</h2>
+    </div>
+    <div class="form-group"><label>Equipment ID *</label>
+      <input type="text" id="qrEquipId" placeholder="EQ001" style="text-transform:uppercase;" oninput="previewQR()"></div>
+    <div class="form-group"><label>Equipment Name (optional)</label>
+      <input type="text" id="qrEquipName" placeholder="Main Motor" oninput="previewQR()"></div>
+    <div id="qrPreview" style="text-align:center;padding:24px;background:var(--light);border-radius:10px;margin-bottom:14px;min-height:80px;display:flex;align-items:center;justify-content:center;">
+      <p style="color:#aaa;font-size:13px;">Enter an ID above to preview QR code</p>
+    </div>
+    <button class="btn btn-primary" onclick="printQR()">🖨️ Print QR Code</button>
+  </div>
+
+</div><!-- /content -->
+
+<!-- Hidden print area -->
+<div id="printArea">
+  <div id="printCard" style="background:white;padding:24px;border:2px solid #ddd;border-radius:12px;display:inline-block;text-align:center;"></div>
+</div>
+
+<div class="footer">NSL Unit 2 · Equipment History v3.0 · akshaybpatil575@gmail.com</div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════════════════════════════════
+const CONFIG = {
+  API_URL:        'https://script.google.com/macros/s/AKfycbwrPq96fYOQPZzE53DMCTvPj3MQF8Yky5VDp9KY8j8SIJ-j8MbcJqhfxQDlxS1E4Br7/exec',
+  APP_URL:        'https://nsl-equipment-8tid-ljzpihawj-ardjoen575s-projects.vercel.app',
+  ADMIN_PASSWORD: 'NSL2024',
+  CACHE_TTL:      5 * 60 * 1000,
+};
+
+// ════════════════════════════════════════════════════════════════════════
+//  API LAYER — change only this section when switching backends
+// ════════════════════════════════════════════════════════════════════════
+const _cache = {};
+function cacheGet(k) { const i=_cache[k]; if(!i) return null; if(Date.now()-i.ts>CONFIG.CACHE_TTL){delete _cache[k];return null;} return i.data; }
+function cacheSet(k,d) { _cache[k]={data:d,ts:Date.now()}; }
+function cacheClear(p) { Object.keys(_cache).forEach(k=>{if(k.startsWith(p))delete _cache[k];}); }
+
+async function apiCall(params) {
+  const url = new URL(CONFIG.API_URL);
+  Object.entries(params).forEach(([k,v])=>{ if(v!=null) url.searchParams.set(k,String(v)); });
+  const res = await fetch(url.toString(), { redirect:'follow' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+const API = {
+  async list() {
+    const c=cacheGet('list'); if(c) return c;
+    const d=await apiCall({action:'list'}); cacheSet('list',d); return d;
+  },
+  async getEquipment(id) {
+    const c=cacheGet('eq:'+id); if(c) return c;
+    const d=await apiCall({action:'getEquipment',id}); cacheSet('eq:'+id,d); return d;
+  },
+  async submitRecord(rec) {
+    const d=await apiCall({action:'submitRecord',data:JSON.stringify(rec)});
+    cacheClear('eq:'+rec.equipmentId); return d;
+  },
+  async getPending()  { return apiCall({action:'getPending',pwd:CONFIG.ADMIN_PASSWORD}); },
+  async approve(id)   { const d=await apiCall({action:'approveRecord',id,by:'Admin',pwd:CONFIG.ADMIN_PASSWORD}); cacheClear('eq:'); return d; },
+  async reject(id)    { return apiCall({action:'rejectRecord',id,pwd:CONFIG.ADMIN_PASSWORD}); },
+  async addEquipment(data) { const d=await apiCall({action:'addEquipment',data:JSON.stringify(data),pwd:CONFIG.ADMIN_PASSWORD}); cacheClear('list'); return d; },
+  async submitDirect(rec)  { const d=await apiCall({action:'submitRecord',data:JSON.stringify({...rec,_adminDirect:true,pwd:CONFIG.ADMIN_PASSWORD})}); cacheClear('eq:'+rec.equipmentId); return d; },
+};
+
+// ════════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════════
+let _allEquipment   = [];
+let _currentEquipId = null;
+let _isAdmin        = false;
+let _scanInterval   = null;
+let _qrInstance     = null;
+
+// ════════════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('recDate').value = today();
+  loadHomeStats();
+  loadEquipmentList();
+  // Support ?id=EQ001 in URL for direct equipment links / QR scans
+  const urlId = new URLSearchParams(window.location.search).get('id');
+  if (urlId) openEquipmentDetail(urlId);
+});
+
+// ════════════════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════════════════════
+const _navBtns = document.querySelectorAll('.nav-btn');
+const _topTabs = ['home','scan','history','pending','admin'];
+
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  _navBtns.forEach((b,i) => b.classList.toggle('active', _topTabs[i] === name));
+
+  if (name === 'pending')       loadPendingView();
+  if (name === 'approvalQueue') loadApprovalQueue();
+  if (name !== 'scan')          stopScan();
+
+  window.scrollTo(0, 0);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  HOME STATS
+// ════════════════════════════════════════════════════════════════════════
+async function loadHomeStats() {
+  try {
+    const list = await API.list();
+    _allEquipment = Array.isArray(list) ? list : [];
+    document.getElementById('homeEquipCount').textContent = _allEquipment.length;
+  } catch(_) { document.getElementById('homeEquipCount').textContent = '?'; }
+
+  try {
+    const p = await API.getPending();
+    const n = Array.isArray(p) ? p.length : 0;
+    document.getElementById('homePendingCount').textContent = n;
+    document.getElementById('homeRecordCount').textContent  = '✓';
+    if (n > 0) {
+      const b = document.getElementById('pendingBadge');
+      b.textContent = n; b.style.display = 'flex';
+    }
+  } catch(_) {
+    document.getElementById('homePendingCount').textContent = '0';
+    document.getElementById('homeRecordCount').textContent  = '✓';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  EQUIPMENT LIST
+// ════════════════════════════════════════════════════════════════════════
+async function loadEquipmentList() {
+  try {
+    const list = await API.list();
+    _allEquipment = Array.isArray(list) ? list : [];
+    renderEquipmentList(_allEquipment);
+  } catch(err) {
+    document.getElementById('equipList').innerHTML =
+      `<div class="empty-state"><div class="ei">⚠️</div><p>Could not load equipment.<br><small style="color:#ccc;">${err.message}</small></p></div>`;
+  }
+}
+
+function renderEquipmentList(list) {
+  const el = document.getElementById('equipList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="ei">📦</div><p>No equipment found.<br>Add equipment in the Admin panel.</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(e => `
+    <div class="equip-card" onclick="openEquipmentDetail('${e.id}')">
+      <h3>⚙️ ${e.name}</h3>
+      <p><strong>ID:</strong> ${e.id}${e.location ? ' &nbsp;·&nbsp; 📍 ' + e.location : ''}</p>
+    </div>
+  `).join('');
+}
+
+function filterList() {
+  const q = document.getElementById('historySearch').value.toLowerCase().trim();
+  renderEquipmentList(q
+    ? _allEquipment.filter(e => e.name.toLowerCase().includes(q) || e.id.toLowerCase().includes(q))
+    : _allEquipment
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  EQUIPMENT DETAIL
+// ════════════════════════════════════════════════════════════════════════
+async function openEquipmentDetail(id) {
+  _currentEquipId = id;
+  showTab('detail');
+
+  document.getElementById('detailTitle').textContent    = id;
+  document.getElementById('detailId').textContent       = '…';
+  document.getElementById('equipHistory').innerHTML     = '<div class="spinner"></div>';
+  document.getElementById('recEquipId').value           = id;
+
+  try {
+    const { equipment: eq, records } = await API.getEquipment(id);
+
+    document.getElementById('detailTitle').textContent    = eq.name || id;
+    document.getElementById('detailId').textContent       = eq.id;
+    document.getElementById('detailPower').textContent    =
+      [eq.kw && eq.kw+'KW', eq.hp && eq.hp+'HP', eq.rpm && eq.rpm+'RPM'].filter(Boolean).join(' · ') || '—';
+    document.getElementById('detailBearings').textContent =
+      [eq.deBearing, eq.ndeBearing].filter(Boolean).join(' / ') || '—';
+    document.getElementById('detailSerial').textContent   = eq.serial || '—';
+    document.getElementById('recEquipName').value         = eq.name  || '';
+
+    const last = records && records[0];
+    document.getElementById('detailLastService').textContent = last ? fmtDate(last.date) : 'Not serviced yet';
+
+    renderHistory(records || []);
+  } catch(err) {
+    document.getElementById('equipHistory').innerHTML =
+      `<div class="empty-state"><div class="ei">⚠️</div><p>${err.message}</p></div>`;
+  }
+}
+
+function renderHistory(records) {
+  document.getElementById('recCountBadge').textContent = records.length ? `(${records.length})` : '';
+  const el = document.getElementById('equipHistory');
+  if (!records.length) {
+    el.innerHTML = `<div class="empty-state"><div class="ei">📋</div><p>No approved maintenance records yet.<br>Add one below.</p></div>`;
+    return;
+  }
+  const bc = { Completed:'badge-green', Pending:'badge-yellow', Failed:'badge-red', Partial:'badge-blue' };
+  const sc = { Completed:'', Pending:'s-pending', Failed:'s-failed', Partial:'s-partial' };
+  el.innerHTML = records.map(r => `
+    <div class="history-item ${sc[r.status]||''}">
+      <h4>${r.task}</h4>
+      <p><strong>Date:</strong> ${fmtDate(r.date)} &nbsp;·&nbsp; <strong>Tech:</strong> ${r.technician}</p>
+      <p>
+        <span class="badge ${bc[r.status]||'badge-blue'}">${r.status}</span>
+        ${r.hours && r.hours!=='0' ? `<strong>${r.hours}h</strong>` : ''}
+      </p>
+      ${r.parts ? `<p><strong>Parts:</strong> ${r.parts}</p>` : ''}
+      ${r.notes ? `<p>${r.notes}</p>` : ''}
+      ${r.nextService ? `<p><strong>Next service:</strong> ${fmtDate(r.nextService)}</p>` : ''}
+      <p style="font-size:11px;color:#bbb;margin-top:6px;">
+        Approved by ${r.approvedBy||'Admin'} · ${fmtDate(r.approvedAt)}
       </p>
     </div>
+  `).join('');
+}
 
-    <!-- Info -->
-    <div class="card">
-      <div class="section-label">How it works</div>
-      <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-          <span style="font-size:1.3rem;">📷</span>
-          <div>
-            <div style="font-weight:600; font-size:0.875rem;">Scan QR Code</div>
-            <div style="font-size:0.78rem; color:var(--text-muted);">Point your camera at any equipment QR label — opens the equipment page instantly.</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-          <span style="font-size:1.3rem;">📋</span>
-          <div>
-            <div style="font-weight:600; font-size:0.875rem;">View History</div>
-            <div style="font-size:0.78rem; color:var(--text-muted);">See full maintenance history, bearing details, last service date.</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-          <span style="font-size:1.3rem;">✍️</span>
-          <div>
-            <div style="font-weight:600; font-size:0.875rem;">Add Records</div>
-            <div style="font-size:0.78rem; color:var(--text-muted);">Submit maintenance records — they go to admin for approval before saving.</div>
-          </div>
+// ════════════════════════════════════════════════════════════════════════
+//  SUBMIT RECORD
+// ════════════════════════════════════════════════════════════════════════
+async function submitRecord(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitRecordBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const isDirect = _isAdmin && document.getElementById('recDirectMode') && document.getElementById('recDirectMode').value === '1';
+
+  const rec = {
+    equipmentId:   document.getElementById('recEquipId').value.trim().toUpperCase(),
+    equipmentName: document.getElementById('recEquipName').value.trim(),
+    date:          document.getElementById('recDate').value,
+    task:          document.getElementById('recTask').value.trim(),
+    status:        document.getElementById('recStatus').value,
+    technician:    document.getElementById('recTechnician').value.trim(),
+    hours:         document.getElementById('recHours').value || '0',
+    parts:         document.getElementById('recParts').value.trim(),
+    notes:         document.getElementById('recNotes').value.trim(),
+    nextService:   document.getElementById('recNextService').value,
+    submittedBy:   document.getElementById('recTechnician').value.trim(),
+  };
+
+  try {
+    if (isDirect) {
+      await API.submitDirect(rec);
+      showAlert('✓ Record saved directly to database!', 'success');
+    } else {
+      await API.submitRecord(rec);
+      showAlert('✓ Record submitted for admin approval!', 'success');
+    }
+    e.target.reset();
+    document.getElementById('recDate').value = today();
+    if (document.getElementById('recDirectMode')) document.getElementById('recDirectMode').value = '0';
+    loadHomeStats();
+    setTimeout(() => showTab('home'), 1500);
+  } catch(err) {
+    showAlert('Error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = isDirect ? '💾 Save Record' : '📤 Submit for Approval';
+  }
+}
+
+// Prep form for admin direct save
+function prepDirectRecord() {
+  showTab('addRecord');
+  // Add hidden mode flag if not present
+  if (!document.getElementById('recDirectMode')) {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.id = 'recDirectMode'; inp.value = '1';
+    document.querySelector('#sec-addRecord form').appendChild(inp);
+  } else {
+    document.getElementById('recDirectMode').value = '1';
+  }
+  document.getElementById('submitRecordBtn').textContent = '💾 Save Record';
+  const nb = document.querySelector('#sec-addRecord .note-box');
+  if (nb) nb.innerHTML = '✅ As admin, this saves <strong>directly</strong> to the database.';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  PENDING VIEW
+// ════════════════════════════════════════════════════════════════════════
+async function loadPendingView() {
+  const el = document.getElementById('pendingList');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const items = await API.getPending();
+    if (!Array.isArray(items) || !items.length) {
+      el.innerHTML = `<div class="empty-state"><div class="ei">✅</div><p>No pending records — all clear!</p></div>`;
+      return;
+    }
+    el.innerHTML = items.map(r => `
+      <div class="pending-item">
+        <h4>⚙️ ${r.equipmentName} — ${r.task}</h4>
+        <p><strong>ID:</strong> ${r.equipmentId} &nbsp;·&nbsp; <strong>Date:</strong> ${fmtDate(r.date)}</p>
+        <p><strong>By:</strong> ${r.technician} &nbsp;·&nbsp; <strong>Hours:</strong> ${r.hours||0}h</p>
+        ${r.notes ? `<p>${r.notes}</p>` : ''}
+        <p style="font-size:11px;color:#bbb;margin-top:5px;">Submitted ${fmtDate(r.submittedAt)} by ${r.submittedBy||r.technician}</p>
+      </div>
+    `).join('');
+  } catch(err) {
+    el.innerHTML = `<div class="empty-state"><p style="color:var(--danger);">${err.message}</p></div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════════════════════════════════
+function adminLogin() {
+  if (document.getElementById('adminPwd').value === CONFIG.ADMIN_PASSWORD) {
+    _isAdmin = true;
+    document.getElementById('adminLogin').style.display   = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    loadAdminStats();
+    showAlert('✓ Admin access granted', 'success');
+  } else {
+    showAlert('❌ Incorrect password', 'error');
+  }
+}
+
+function adminLogout() {
+  _isAdmin = false;
+  document.getElementById('adminLogin').style.display   = 'block';
+  document.getElementById('adminContent').style.display = 'none';
+  document.getElementById('adminPwd').value = '';
+  showAlert('Logged out', 'success');
+  showTab('home');
+}
+
+async function loadAdminStats() {
+  try { const l=await API.list(); document.getElementById('adminEquipCount').textContent=Array.isArray(l)?l.length:'?'; } catch(_){}
+  try { const p=await API.getPending(); document.getElementById('adminPendingCount').textContent=Array.isArray(p)?p.length:'0'; } catch(_){}
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  APPROVAL QUEUE
+// ════════════════════════════════════════════════════════════════════════
+async function loadApprovalQueue() {
+  const el = document.getElementById('approvalList');
+  el.innerHTML = '<div class="spinner"></div>';
+  try {
+    const items = await API.getPending();
+    if (!Array.isArray(items) || !items.length) {
+      el.innerHTML = `<div class="empty-state"><div class="ei">✅</div><p>All clear — no pending records!</p></div>`;
+      return;
+    }
+    el.innerHTML = items.map(r => `
+      <div class="pending-item" id="apr-${r.id}">
+        <h4>⚙️ ${r.equipmentName} — ${r.task}</h4>
+        <p><strong>ID:</strong> ${r.equipmentId} &nbsp;·&nbsp; <strong>Date:</strong> ${fmtDate(r.date)}</p>
+        <p><strong>Tech:</strong> ${r.technician} &nbsp;·&nbsp; <strong>Hours:</strong> ${r.hours||0}h</p>
+        ${r.parts ? `<p><strong>Parts:</strong> ${r.parts}</p>` : ''}
+        ${r.notes ? `<p>${r.notes}</p>` : ''}
+        <p style="font-size:11px;color:#bbb;margin-top:5px;">Submitted ${fmtDate(r.submittedAt)} by ${r.submittedBy||r.technician}</p>
+        <div class="approval-actions">
+          <button class="btn btn-success" onclick="approveRecord('${r.id}')">✓ Approve</button>
+          <button class="btn btn-danger"  onclick="rejectRecord('${r.id}')">✕ Reject</button>
         </div>
       </div>
+    `).join('');
+  } catch(err) {
+    el.innerHTML = `<div class="empty-state"><p style="color:var(--danger);">${err.message}</p></div>`;
+  }
+}
+
+async function approveRecord(id) {
+  const el = document.getElementById('apr-'+id);
+  const btn = el.querySelector('.btn-success');
+  btn.disabled=true; btn.textContent='Approving…';
+  try {
+    await API.approve(id);
+    el.style.opacity='0.4';
+    el.querySelector('.approval-actions').innerHTML='<span class="badge badge-green" style="font-size:13px;padding:6px 12px;">✓ Approved</span>';
+    showAlert('✓ Record approved and saved!', 'success');
+    loadAdminStats(); loadHomeStats();
+  } catch(err) { showAlert('Error: '+err.message,'error'); btn.disabled=false; btn.textContent='✓ Approve'; }
+}
+
+async function rejectRecord(id) {
+  if (!confirm('Reject this record? It will be deleted.')) return;
+  const el = document.getElementById('apr-'+id);
+  const btn = el.querySelector('.btn-danger');
+  btn.disabled=true; btn.textContent='Rejecting…';
+  try {
+    await API.reject(id);
+    el.style.opacity='0.4';
+    el.querySelector('.approval-actions').innerHTML='<span class="badge badge-red" style="font-size:13px;padding:6px 12px;">✕ Rejected</span>';
+    showAlert('Record rejected.', 'warning');
+    loadAdminStats(); loadHomeStats();
+  } catch(err) { showAlert('Error: '+err.message,'error'); btn.disabled=false; btn.textContent='✕ Reject'; }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  ADD EQUIPMENT
+// ════════════════════════════════════════════════════════════════════════
+async function saveEquipment(e) {
+  e.preventDefault();
+  const btn = document.getElementById('saveEquipBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  const data = {
+    id:         document.getElementById('eqId').value.trim().toUpperCase(),
+    name:       document.getElementById('eqName').value.trim(),
+    location:   document.getElementById('eqLocation').value.trim(),
+    kw:         document.getElementById('eqKW').value,
+    hp:         document.getElementById('eqHP').value,
+    rpm:        document.getElementById('eqRPM').value,
+    frame:      document.getElementById('eqFrame').value.trim(),
+    deBearing:  document.getElementById('eqDE').value.trim(),
+    ndeBearing: document.getElementById('eqNDE').value.trim(),
+    serial:     document.getElementById('eqSerial').value.trim(),
+  };
+  try {
+    await API.addEquipment(data);
+    showAlert(`✓ Equipment ${data.id} created successfully!`, 'success');
+    e.target.reset();
+    _allEquipment = [];
+    loadEquipmentList();
+    loadAdminStats();
+    setTimeout(() => showTab('admin'), 1500);
+  } catch(err) { showAlert('Error: '+err.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='✓ Create Equipment'; }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  QR SCANNER
+// ════════════════════════════════════════════════════════════════════════
+async function startScan() {
+  const video = document.getElementById('video');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'environment' } });
+    video.srcObject = stream;
+    await video.play();
+    document.getElementById('startScanBtn').style.display = 'none';
+    document.getElementById('stopScanBtn').style.display  = 'flex';
+    _scanInterval = setInterval(() => processFrame(video), 200);
+  } catch(_) { showAlert('Camera access denied — try uploading a QR image instead', 'error'); }
+}
+
+function stopScan() {
+  if (_scanInterval) { clearInterval(_scanInterval); _scanInterval = null; }
+  const v = document.getElementById('video');
+  if (v && v.srcObject) { v.srcObject.getTracks().forEach(t=>t.stop()); v.srcObject=null; }
+  const s=document.getElementById('startScanBtn'), x=document.getElementById('stopScanBtn');
+  if(s) s.style.display='flex'; if(x) x.style.display='none';
+}
+
+function processFrame(video) {
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+  const c=document.createElement('canvas'); c.width=video.videoWidth; c.height=video.videoHeight;
+  const ctx=c.getContext('2d'); ctx.drawImage(video,0,0);
+  const code=jsQR(ctx.getImageData(0,0,c.width,c.height).data,c.width,c.height);
+  if (code) { stopScan(); handleQRData(code.data); }
+}
+
+function scanFromFile() {
+  const file=document.getElementById('qrFile').files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas'); c.width=img.width; c.height=img.height;
+      const ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
+      const code=jsQR(ctx.getImageData(0,0,c.width,c.height).data,c.width,c.height);
+      if(code) handleQRData(code.data); else showAlert('No QR code found in that image','error');
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleQRData(value) {
+  try { const url=new URL(value); const id=url.searchParams.get('id'); if(id){openEquipmentDetail(id);return;} } catch(_){}
+  openEquipmentDetail(value.trim().toUpperCase());
+}
+
+function doSearch() {
+  const id=document.getElementById('searchInput').value.trim().toUpperCase();
+  if(!id){showAlert('Enter an equipment ID','warning');return;}
+  openEquipmentDetail(id);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  QR GENERATOR
+// ════════════════════════════════════════════════════════════════════════
+function previewQR() {
+  const id   = document.getElementById('qrEquipId').value.trim().toUpperCase();
+  const name = document.getElementById('qrEquipName').value.trim();
+  const container = document.getElementById('qrPreview');
+  if (!id) { container.innerHTML='<p style="color:#aaa;font-size:13px;">Enter an ID above to preview QR code</p>'; _qrInstance=null; return; }
+
+  const url = `${CONFIG.APP_URL}?id=${encodeURIComponent(id)}`;
+  container.innerHTML = `
+    <div>
+      <div id="qrCanvas"></div>
+      <div style="font-weight:700;font-size:14px;margin-top:8px;">${id}</div>
+      ${name?`<div style="font-size:12px;color:#666;margin-top:2px;">${name}</div>`:''}
+      <div style="font-size:10px;color:#aaa;margin-top:5px;border-top:1px solid #eee;padding-top:5px;">NSL Unit 2 · MRN Group</div>
     </div>
+  `;
+  _qrInstance = new QRCode(document.getElementById('qrCanvas'),{
+    text:url, width:160, height:160,
+    colorDark:'#000000', colorLight:'#ffffff',
+    correctLevel:QRCode.CorrectLevel.H
+  });
+}
 
-  </div><!-- /tab-home -->
+function printQR() {
+  const id=document.getElementById('qrEquipId').value.trim();
+  if(!id){showAlert('Enter an equipment ID first','warning');return;}
+  window.print();
+}
 
-  <!-- ── SCAN ─────────────────────────────────────────────────────────────── -->
-  <div id="tab-scan" class="tab-section" style="display:none;">
+// ════════════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════════════════════════════════
+function showAlert(msg, type='info') {
+  const el=document.getElementById('alert');
+  el.className=`alert show alert-${type}`;
+  el.textContent=msg;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),4500);
+}
 
-    <div class="card">
-      <h2 style="margin-bottom:16px;">📷 Scan QR Code</h2>
+function today() { return new Date().toISOString().split('T')[0]; }
 
-      <video id="video" playsinline></video>
+function fmtDate(d) {
+  if(!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(_){ return d; }
+}
 
-      <div class="btn-group" style="margin-bottom:12px;">
-        <button class="btn btn-primary"   id="startScanBtn" onclick="startScan()">▶ Start Camera</button>
-        <button class="btn btn-ghost"     id="stopScanBtn"  onclick="stopScan()" style="display:none;">■ Stop</button>
-      </div>
-
-      <input type="file" id="qrFileInput" accept="image/*" onchange="scanFromFile()" style="display:none;">
-      <button class="btn btn-ghost btn-block" onclick="document.getElementById('qrFileInput').click()">
-        🖼️ Upload QR Image from Gallery
-      </button>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:12px;">Or Enter ID Manually</h3>
-      <div class="search-bar">
-        <input type="text" id="searchInput2" placeholder="Equipment ID (e.g. EQ001)" style="text-transform:uppercase;"
-               onkeydown="if(event.key==='Enter'){goToEquipment(this.value);}">
-        <button class="btn btn-primary" onclick="goToEquipment(document.getElementById('searchInput2').value)">Go →</button>
-      </div>
-    </div>
-
-  </div><!-- /tab-scan -->
-
-  <!-- ── BROWSE ───────────────────────────────────────────────────────────── -->
-  <div id="tab-browse" class="tab-section" style="display:none;">
-
-    <div class="search-bar">
-      <input type="text" id="browseSearch" placeholder="Search by name or ID…">
-    </div>
-
-    <div id="equipList">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading equipment…</div>
-    </div>
-
-  </div><!-- /tab-browse -->
-
-</div><!-- /page -->
-
-<footer class="footer">
-  NSL Equipment History v3.0 &nbsp;·&nbsp; MRN Group
-</footer>
-
-<!-- jsQR -->
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/home.js"></script>
+window.addEventListener('beforeunload', stopScan);
+</script>
 </body>
 </html>
