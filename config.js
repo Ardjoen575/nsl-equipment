@@ -15,7 +15,7 @@ const CONFIG = Object.freeze({
   // ── Backend ──────────────────────────────────────────────────────────────
   // Paste your Google Apps Script Web App URL here after deployment.
   // Format: https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
-  API_BASE_URL: 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec',
+  API_BASE_URL: 'https://script.google.com/macros/s/AKfycbwrPq96fYOQPZzE53DMCTvPj3MQF8Yky5VDp9KY8j8SIJ-j8MbcJqhfxQDlxS1E4Br7/exec',
 
   // ── App Identity ──────────────────────────────────────────────────────────
   APP_NAME:    'NSL Equipment History',
@@ -34,6 +34,6 @@ const CONFIG = Object.freeze({
   // ── Hosting ───────────────────────────────────────────────────────────────
   // Base URL of this app (used for building QR code URLs).
   // Replace with your Vercel domain after deploy.
-  APP_BASE_URL: 'https://YOUR-PROJECT.vercel.app',
+  APP_BASE_URL: 'https://nsl-equipment-8tid-ljzpihawj-ardjoen575s-projects.vercel.app',
 
 });
